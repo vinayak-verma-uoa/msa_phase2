@@ -4,4 +4,4 @@ The code in this repository is submission for MSA Phase 2 FrontEnd Submission. ð
 
 ## Demo Image:
 
-![alt text](https://github.com/vinayak-verma-uoa/msa_phase2_frontend/blob/main/src/media/Demo_screenshot.png2?raw=true)
+![alt text](https://github.com/vinayak-verma-uoa/msa_phase2_frontend/blob/main/src/media/Demo_screenshot2.png?raw=true)
