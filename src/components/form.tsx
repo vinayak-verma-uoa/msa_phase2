@@ -7,8 +7,9 @@ import SearchIcon from "@mui/icons-material/Search";
 import TextField from "@mui/material/TextField";
 import { Box, Grid, Paper, Skeleton } from "@mui/material";
 
-// Pokemon Api base URL
-const POKEMON_BASE_URL = "https://pokeapi.co/api/v2";
+// Animal Zoo Api base URL
+const ANIMAL_API_BASE_URL = "https://zoo-animal-api.herokuapp.com";
+let listItems = [];
 
 function Form() {
   /*
@@ -20,8 +21,8 @@ function Form() {
         None
     */
   // State storing pokemon name input from search bar
-  const [pokemonName, setPokemonName] = useState("");
-  const [pokemonInfo, setPokemonInfo] = useState<undefined | any>(undefined);
+  const [numberInput, setNumberInput] = useState("");
+  const [animalData, setAnimalData] = useState<undefined | any>(undefined);
   // CSS Styling
   const formStyle = {
     top: "10%",
@@ -29,7 +30,7 @@ function Form() {
     display: "grid",
     color: "blue",
     backgroundColor: "white",
-    width: 300,
+    width: 400,
 
     // Border styling
     borderStyle: "solid",
@@ -54,7 +55,7 @@ function Form() {
           fontSize: "h5.fontSize",
         }}
       >
-        Ask Professor Oak
+        Animals with Prof. Oak
       </Box>
       <Box
         sx={{
@@ -63,20 +64,17 @@ function Form() {
           mb: 1,
         }}
       >
-        Credit Background Image:
-        <a href="https://www.teechu.com/pokemon-professor-oak-facts-trivia">
-          TeeChu
-        </a>
+        Input number of animals to view? Range 1-10
       </Box>
       <div>
         <TextField
           id="search-bar"
           className="text"
-          value={pokemonName}
+          value={numberInput}
           onChange={(prop: any) => {
-            setPokemonName(prop.target.value);
+            setNumberInput(prop.target.value);
           }}
-          label="Pokemon name"
+          label="Number between 1-10"
           variant="outlined"
           placeholder="Search..."
           size="small"
@@ -90,14 +88,14 @@ function Form() {
           <SearchIcon style={{ fill: "blue" }} />
         </IconButton>
       </div>
-      {pokemonInfo === undefined ? (
-        <p>Pokemon not found..</p>
+      {animalData === undefined ? (
+        <p>Animal(s) not found..</p>
       ) : (
         <Box>
           <p>
-            <u>Results for: {pokemonInfo.name}</u>
+            <u>Result for: {numberInput} animal(s).</u>
           </p>
-          <Paper sx={{ backgroundColor: getBackColor(pokemonInfo) }}>
+          <Paper>
             <Grid
               container
               direction="row"
@@ -108,40 +106,12 @@ function Form() {
             >
               <Grid item>
                 <Box>
-                  {pokemonInfo === undefined || pokemonInfo === null ? (
-                    <h1> Pokemon not found</h1>
+                  {animalData === undefined || animalData === null ? (
+                    <h1>Enter number between 1-10</h1>
                   ) : (
                     <div>
-                      <h1>
-                        {pokemonInfo.name.charAt(0).toUpperCase() +
-                          pokemonInfo.name.slice(1)}
-                      </h1>
-                      <p>
-                        ID: {pokemonInfo.id}
-                        <br />
-                        Height: {pokemonInfo.height * 10} cm
-                        <br />
-                        Weight: {pokemonInfo.weight / 10} kg
-                        <br />
-                        Types: {getTypes()?.toString()}
-                        <br />
-                        Abilities: {getAbilities()?.toString()}
-                      </p>
+                      {generateList(animalData)}
                     </div>
-                  )}
-                </Box>
-              </Grid>
-              <Grid item>
-                <Box>
-                  {pokemonInfo?.sprites.other.dream_world.front_default ? (
-                    <img
-                      height="250"
-                      width="250"
-                      alt={pokemonInfo.name}
-                      src={pokemonInfo.sprites.other.dream_world.front_default}
-                    ></img>
-                  ) : (
-                    <Skeleton width={300} height={300} />
                   )}
                 </Box>
               </Grid>
@@ -151,51 +121,6 @@ function Form() {
       )}
     </div>
   );
-
-  function getTypes() {
-    if (pokemonInfo !== undefined && pokemonInfo !== null) {
-      return pokemonInfo.types.map((item: any) => item.type.name);
-    }
-  }
-
-  function getAbilities() {
-    if (pokemonInfo !== undefined && pokemonInfo !== null) {
-      return pokemonInfo.abilities.map((ability: any) => ability.ability.name);
-    }
-  }
-
-  // Credit to codingsparkles for providing the color mapping
-  function getBackColor(poke: Pokemon | undefined | null) {
-    let backColor = "#EEE8AA";
-    if (poke === undefined || poke === null) {
-      return backColor;
-    }
-    const pokeTypes = poke.types.map((i) => i.type.name);
-    if (pokeTypes.includes("fire")) {
-      backColor = "#FEC5BB";
-    } else if (pokeTypes.includes("grass")) {
-      backColor = "#80FFDB";
-    } else if (pokeTypes.includes("water")) {
-      backColor = "#DFE7FD";
-    } else if (pokeTypes.includes("bug")) {
-      backColor = "#B0DEA3";
-    } else if (pokeTypes.includes("normal")) {
-      backColor = "#E0FFFF";
-    } else if (pokeTypes.includes("electric")) {
-      backColor = "#D8E2DC";
-    } else if (pokeTypes.includes("ground")) {
-      backColor = "#FAD2E1";
-    } else if (pokeTypes.includes("fairy")) {
-      backColor = "#FFF1E6";
-    } else if (pokeTypes.includes("ghost")) {
-      backColor = "#F8EDEB";
-    } else if (pokeTypes.includes("fighting")) {
-      backColor = "#F1FAEE";
-    } else if (pokeTypes.includes("rock")) {
-      backColor = "#A8DADC";
-    }
-    return backColor;
-  }
 
   function search() {
     /*
@@ -209,18 +134,38 @@ function Form() {
         */
 
     // Prevents search from executing without input
-    if (pokemonName !== "") {
+    if (numberInput !== "") {
       axios
-        .get(POKEMON_BASE_URL + "/pokemon/" + pokemonName.toLowerCase())
+        .get(ANIMAL_API_BASE_URL + "/animals/rand/" + numberInput)
         .then((res) => {
-          setPokemonInfo(res.data);
+          setAnimalData(res.data);
           console.log(res.data);
         })
         .catch((err) => {
-          console.log("Pokemon not found");
-          setPokemonInfo(undefined);
+          console.log(ANIMAL_API_BASE_URL + "/animals/rand/" + numberInput);
+          console.log("Input invalid");
+          console.log(err);
+          setAnimalData(undefined);
         });
     }
+  }
+  function generateList(list: any) {
+    /*
+    Takes in a list and generate a react componen
+    */
+    return (list.map((item: any) =>
+      <div>
+        <div key={item.id.toString()}>
+          <img src={item.image_link} style={{width: 200,}} />
+        </div>
+        <div style={{textAlign: 'left',}}>
+          <li>name: {item.name}</li>
+          <li>Type: {item.animal_type}</li>
+          <li>Max Weight: {item.weight_max} kg</li>
+        </div>
+      </div>
+      )
+    );
   }
 }
 export default Form;
